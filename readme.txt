@@ -11,10 +11,14 @@ in these papers:
 1) Marios O. Choudary and Markus G. Kuhn, "Efficient, Portable Template Attacks",
 IEEE Transactions on Information Forensics and Security, 13(2), 2018, pp.490--501.
 
-2) Omar Choudary and Markus G. Kuhn, "Template attacks on different devices",
+2) Marios O. Choudary and Markus G. Kuhn,
+"Efficient stochastic methods: profiled attacks beyond 8 bits",
+CARDIS 2014, Paris, 2014. Springer LNCS 8968, pp. 85--103.
+
+3) Omar Choudary and Markus G. Kuhn, "Template attacks on different devices",
 COSADE 2014, Paris, 2014. Springer LNCS 8622, pp. 179--198.
 
-3) Omar Choudary and Markus G. Kuhn, "Efficient Template Attacks", CARDIS 2013,
+4) Omar Choudary and Markus G. Kuhn, "Efficient Template Attacks", CARDIS 2013,
 Berlin, 27--29 November, 2013. Springer LNCS 8419, pp. 253--270.
 
 If you find the associated data or code useful please cite the relevant papers
@@ -35,20 +39,23 @@ Each of the uncompressed data files contain the raw traces that we
 acquired from our four evaluation boards (Alpha, Beta, Gamma, Delta) on the
 Atmel XMEGA A3U microcontroller, by using a Tektronix TDS 7054 oscilloscope
 using the full bandwidth (500MHz) and batteries via a voltage regulator 3.3 V
-as power supply. There are five datasets available: four corresponding to
-each device (alpha, beta, gamma, delta) and a second dataset on device Beta,
-which corresponds to a different acquisition campaign to observe similarities
-and differences between attacks on different devices and attacks on different
-acquisition campaigns on the same device (see papers for details).
+as power supply.
 
-The full acquisition settings for all campaigns/devices are:
+For the Grizzly experiments (8-bit attacks), there are five datasets available:
+four corresponding to each device (alpha, beta, gamma, delta) and a second
+dataset on device Beta, which corresponds to a different acquisition campaign
+to observe similarities and differences between attacks on different devices
+and attacks on different acquisition campaigns on the same device (see papers
+for details).
+
+The full acquisition settings for all these campaigns/devices are:
 Power supply from batteries via voltage regulator at 3.3V,
 1MHz sine clk (3 Vpp,1.5 V DC offset, 50 Ohm load, sine),
 10 Ohm resistor, active probe. Bandwidth 500MHz,250MS/s,4ns/point,1us/div,
 2500 pt/frame,SAMPLE mode with Fastframe, 10mV/div vertical resolution,
 DC coupling.
 
-The experiments (which we called E2) are as follows:
+These experiments (which we called E2) are as follows:
 Loading bytes into registers r8:r15. All bytes are 0 except for the
 second byte that gets loaded into r9, which is changed between 0 and 255.
 The experiment is as follows:
@@ -142,6 +149,36 @@ and they should also allow you to easily build your own scripts to reproduce
 all figures (e.g. using also the other campaigns, not just alpha and beta)
 as well as to test your own algorithms on our datasets.
 
+STOCHASTIC METHODS AND PANDA DATASET
+
+In the same location:
+https://www.cl.cam.ac.uk/research/security/datasets/grizzly/
+
+you will find also a larger dataset:
+e5_all_bat_fb_2mhz_n500_beta.raw.gz
+
+called Panda in our "Efficient stochastic methods" paper,
+which was used for our experiments on 16-bit data.
+The acquisition settings for this dataset are:
+Power supply from batteries via voltage regulator at 3.3V,
+1MHz sine clk (3 Vpp,1.5 V DC offset, 50 Ohm load, sine),
+10 Ohm resistor, active probe. Bandwidth 500MHz,125MS/s,HIRES mode,
+500 pt/frame, 10mV/div vertical resolution, DC coupling.
+
+The code running on the XMEGA for the Panda dataset is the same as for
+Grizzly, except that two consecutive registers are now loaded with random
+plaintext instead of a single register (as was the case for Grizzly).
+This allows us to target 16-bit values (i.e. two concatenated 8-bit values).
+
+See the scripts:
+do_test_success_stochastic_e2_bat_fb_all.m
+do_show_results_stochastic_f9_a2_bat_fb_master.m
+do_test_success_stochastic_e5_bat_fb_all.m
+
+for using the Panda and Grizzly datasets with stochastic methods.
+This should provide a more efficient profiling phase than using
+standard template attacks.
+
 AUTOMATIC BUILD
 
 In this folder there should also be a Makefile that allows you to
@@ -160,6 +197,9 @@ Run one of the following:
 
 "make single":
   run only the attacks on a single device.
+
+"make stochastic":
+  run the stochastic-based template attacks on the Grizzly data.
 
 "make data":
   download and uncompress the data only

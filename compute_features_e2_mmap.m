@@ -71,7 +71,6 @@ end
 
 %% Extract data from each group leakage matrix
 for k=1:nr_groups
-    fprintf('Computing features for data group %d\n', bytes(k));
     kindex = find(map.data(1).B(2,:)==bytes(k));
     lindex = kindex(bindex);
     % Below note transpose and conversion in case we had integer class

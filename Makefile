@@ -19,6 +19,9 @@ multi: \
 single: \
 	figures/a2_bat_fb_dlinear_n200r_ls_r10_guess_entropy.pdf
 
+stochastic: \
+	figures/a2_bat_fb_stoc_S-LDA_n1000r_ls_r10_guess_entropy.pdf
+
 data: $(DATA_B) $(DATA_A)
 
 $(DATA_B):
@@ -68,6 +71,18 @@ figures/a2d_ab_bat_fb_boffset_dlinear_n1000r_ls_r10_guess_entropy.pdf: \
 		results/a2d_ab_bat_fb_templates_adapt_boffset_dlinear_n1000r_slr_g1000_r10.mat
 	[ -d figures ] || mkdir figures
 	echo do_show_results_templates_a2d_ab_adapt_boffset | $(MATLAB)
+
+results/a2_bat_fb_stochastic_f9_all_dlinear_n200r_slr_g1000_r10.mat: \
+		do_test_success_stochastic_e2_bat_fb_all.m \
+		$(DATA_B)
+	[ -d results ] || mkdir results
+	echo do_test_success_stochastic_e2_bat_fb_all | $(MATLAB)
+
+figures/a2_bat_fb_stoc_S-LDA_n1000r_ls_r10_guess_entropy.pdf: \
+		do_show_results_stochastic_f9_a2_bat_fb_master.m \
+		results/a2_bat_fb_stochastic_f9_all_dlinear_n200r_slr_g1000_r10.mat
+	[ -d figures ] || mkdir figures
+	echo do_show_results_stochastic_f9_a2_bat_fb_master | $(MATLAB)
 
 clean:
 	rm -f figures/a2_bat_fb_dlinear_n200r_ls_r10_guess_entropy.pdf
