@@ -1,9 +1,11 @@
-function [A, D] = compute_params_lda(B, S)
+function [A, D, K] = compute_params_lda(B, S, nr_groups, threshold, use_eig)
 %COMPUTE_PARAMS_LDA Compute Fisher's LDA parameters
-%   [A, D] = COMPUTE_PARAMS_LDA(B, S)
+%   [A, D, K] = COMPUTE_PARAMS_LDA(B, S, nr_groups, threshold)
 %   computes the parameters A (matrix of coefficients/eigenvectors) and
-%   D (diagonal matrix of eigenvalues of S^(-1)*B) that are needed to
-%   obtain Fisher's linear discriminants.
+%   D (vector of eigenvalues of S^(-1)*B) that are needed to
+%   obtain Fisher's linear discriminants. Optionally the method returns
+%   the number K of coefficients needed to retain the given threshold of
+%   the total variance.
 %
 %   B should be "between means" sum of squares and crossproducts matrix:
 %   B = Sum((x_i_mean - x_mean)(x_i_mean - x_mean), where x_i_mean is the
@@ -20,6 +22,20 @@ function [A, D] = compute_params_lda(B, S)
 %   group.
 %
 %   Both B and S should be of size nr_points x nr_points.
+%
+%   The following 2 arguments are optional and will be used only to compute
+%   K, the number of components needed to reach a certain threshold of the
+%   total variance:
+%   - nr_groups should specify how many groups/classes where used to
+%     compute B and S.
+%   - threshold is an optional real value (between 0 and 1) that should
+%     specify the minimum threshold of the total variance.
+%
+%   use_eig is an optional argument that specifies if the actual
+%   eigenvalues should be used instead of the singular values (default).
+%   Pass a non-zero value for using the eigenvalues. Otherwise this method
+%   uses in fact a singular value decomposition, which is more stable even
+%   if the result does not represent precisely the eigenvectors.
 %
 %   It is important that the given matrix S is already scaled according to
 %   the degrees of freedom as shown above, since the eigenvectors e
@@ -42,6 +58,12 @@ function [A, D] = compute_params_lda(B, S)
 %   can be ignored.
 %   - the diagonal matrix D also of size nr_points x nr_points,
 %   containing the eigenvalues of S^(-1)*B.
+%   - an optional number of components K that represent the number of
+%     eigenvalues needed to reach the specified threshold of the total
+%     variance. This is the cummulative variance method of determining the
+%     number of components to use.
+%
+%   See also prepare_data_pca_v1, prepare_data_pca_v2.
 
 %% Check and initialize stuff
 nr_points = size(B, 1);
@@ -51,13 +73,32 @@ end
 if size(B) ~= size(S)
     error('size of B different than size of S');
 end
+if nargin < 5
+    use_eig = 0;
+end
 
 %% Compute the eigenvalues
-[A, D, ~] = svd(S\B);
+if use_eig
+    [A,D] = eig(S\B);
+else
+    [A, D, ~] = svd(S\B);
+end
+D = diag(D);
 
 %% Scale eigenvalues to have e'Se = 1 for each e
 Q = A'*S*A;
 Z = diag(1./sqrt(diag(Q)));
 A = A*Z;
+
+%% Return K if needed
+if nargout > 2
+    for k=1:nr_groups
+        f = sum(D(1:k)) / sum(D);
+        if f >= threshold
+            K = k;
+            break
+        end
+    end
+end
 
 end

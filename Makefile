@@ -1,7 +1,7 @@
 # Makefile for code and data in grizzly project (template attacks on 8-bit XMEGA 256 A3U)
 # See the readme.txt file for more details.
 #
-# Author: Omar Choudary (omar.choudary@cl.cam.ac.uk)
+# Author: Marios Omar Choudary (omar.choudary@cl.cam.ac.uk,marios.choudary@cs.pub.ro)
 
 DATA_B=e2_bat_fb_beta_raw_s_0_3071.raw
 DATA_A=e2_bat_fb_alpha_raw_s_0_3071.raw
@@ -9,7 +9,15 @@ MATLAB=matlab -nosplash
 
 all: \
 	figures/a2_bat_fb_dlinear_n200r_ls_r10_guess_entropy.pdf \
-	figures/a2d_ab_bat_fb_dlinear_n1000r_ls_r10_guess_entropy.pdf
+	figures/a2d_ab_bat_fb_dlinear_n1000r_ls_r10_guess_entropy.pdf \
+	figures/a2d_ab_bat_fb_boffset_dlinear_n1000r_ls_r10_guess_entropy.pdf
+
+multi: \
+	figures/a2d_ab_bat_fb_dlinear_n1000r_ls_r10_guess_entropy.pdf \
+	figures/a2d_ab_bat_fb_boffset_dlinear_n1000r_ls_r10_guess_entropy.pdf
+
+single: \
+	figures/a2_bat_fb_dlinear_n200r_ls_r10_guess_entropy.pdf
 
 data: $(DATA_B) $(DATA_A)
 
@@ -48,7 +56,21 @@ figures/a2d_ab_bat_fb_dlinear_n1000r_ls_r10_guess_entropy.pdf: \
 	[ -d figures ] || mkdir figures
 	echo do_show_results_templates_a2d_ab_bat_fb | $(MATLAB)
 
+results/a2d_ab_bat_fb_templates_adapt_boffset_dlinear_n1000r_slr_g1000_r10.mat: \
+		do_test_success_templates_a2d_ab_adapt_boffset.m \
+		$(DATA_B) \
+		$(DATA_A)
+	[ -d results ] || mkdir results
+	echo do_test_success_templates_a2d_ab_adapt_boffset | $(MATLAB)
+
+figures/a2d_ab_bat_fb_boffset_dlinear_n1000r_ls_r10_guess_entropy.pdf: \
+		do_show_results_templates_a2d_ab_adapt_boffset.m \
+		results/a2d_ab_bat_fb_templates_adapt_boffset_dlinear_n1000r_slr_g1000_r10.mat
+	[ -d figures ] || mkdir figures
+	echo do_show_results_templates_a2d_ab_adapt_boffset | $(MATLAB)
+
 clean:
 	rm -f figures/a2_bat_fb_dlinear_n200r_ls_r10_guess_entropy.pdf
 	rm -f figures/a2d_ab_bat_fb_dlinear_n1000r_ls_r10_guess_entropy.pdf
+	rm -f figures/a2d_ab_bat_fb_boffset_dlinear_n1000r_ls_r10_guess_entropy.pdf
 
